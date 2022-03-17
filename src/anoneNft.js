@@ -294,23 +294,6 @@ export async function mintNft() {
   }
 }
 
-export async function handleTransfer() {
-  if (
-    !this.transferring.tokenId ||
-    !this.transferring.recipient ||
-    this.isSending
-  ) {
-    console.warn(
-      "Nothing to transfer (check token ID and recipient address)",
-      this.transferring
-    );
-    return;
-  }
-  await this.transferNft(
-    this.transferring.recipient,
-    this.transferring.tokenId
-  );
-}
 export async function transferNft() {
   // SigningCosmWasmClient.execute: async (senderAddress, contractAddress, msg, fee, memo = "", funds)
   if (!this.accounts) {
@@ -374,13 +357,6 @@ export async function transferNft() {
   }
 }
 
-export async function handleBurn() {
-  if (!this.transferring.tokenId || this.isBurning) {
-    console.warn("Nothing to burn (check token ID)", this.transferring);
-    return;
-  }
-  await this.burnNft(this.transferring.tokenId);
-}
 export async function burnNft() {
   // SigningCosmWasmClient.execute: async (senderAddress, contractAddress, msg, fee, memo = "", funds)
   if (!this.accounts) {
