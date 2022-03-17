@@ -1,6 +1,7 @@
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import { calculateFee, GasPrice } from "@cosmjs/stargate";
 import { AnoneTestnetInfo } from "./chain.info.anonetestnet";
+import ipfsClient from "./ipfs";
 
 export async function connectWallet() {
   console.log("Connecting wallet...");
