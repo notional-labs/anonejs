@@ -1,0 +1,11 @@
+{
+  "name": "anonejs",
+  "version": "1.0.0",
+  "description": "This is a function apis package for purpose of helping Anone frontend devs use cosmjs to interact with Anone smart contract.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "chinhnotional",
+  "license": "ISC"
+}
