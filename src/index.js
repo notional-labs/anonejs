@@ -4,6 +4,7 @@ export {
     ipfsUpload,
     getTokenMetadata,
     getNfts,
+    loadNfts,
     mintNft,
     transferNft,
     burnNft

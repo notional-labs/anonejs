@@ -190,3 +190,28 @@ export async function ipfsUpload() {
     return;
   };
 }
+
+export async function loadNfts() {
+  // XXX TODO: Fix request tokens of address
+  // Load NFTs
+  try {
+    // User NFTs
+    // this.nfts.user = await this.getNftsOfOwner();
+    // console.log('My NFTs', this.nfts.user);
+    // All NFTs (of contract)
+    this.nfts.market = await this.getNfts();
+    console.log("All NFTs", this.nfts.market);
+    // console.log('NFTs at contract '+ this.contract +' have been loaded', this.nfts);
+
+    // Iterate ID's and get token data
+    await this.loadNftData();
+  } catch (e) {
+    console.error("Error loading NFTs", {
+      nfts: this.nfts,
+      user: this.accounts,
+      error: e,
+    });
+  }
+}
+
+
