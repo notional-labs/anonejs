@@ -372,3 +372,70 @@ export async function transferNft() {
     this.loading.msg = "";
   }
 }
+
+export async function handleBurn() {
+  if (!this.transferring.tokenId || this.isBurning) {
+    console.warn("Nothing to burn (check token ID)", this.transferring);
+    return;
+  }
+  await this.burnNft(this.transferring.tokenId);
+}
+export async function burnNft() {
+  // SigningCosmWasmClient.execute: async (senderAddress, contractAddress, msg, fee, memo = "", funds)
+  if (!this.accounts) {
+    console.warn("Error getting user", this.accounts);
+    return;
+  } else if (!this.accounts.length) {
+    console.warn("Error getting user", this.accounts);
+    return;
+  } else if (!tokenId) {
+    console.warn("Nothing to burn (check token ID)", { token_id: tokenId });
+    return;
+  }
+
+  // Prepare Tx
+  let entrypoint = {
+    burn: {
+      token_id: tokenId,
+    },
+  };
+  this.isBurning = true;
+  this.loading = {
+    status: true,
+    msg: "Burning NFT with Token ID: " + tokenId + "...",
+  };
+  let txFee = calculateFee(300000, this.gas.price); // XXX TODO: Fix gas estimation (https://github.com/cosmos/cosmjs/issues/828)
+  // Send Tx
+  try {
+    let tx = await this.wasmClient.execute(
+      this.accounts[0].address,
+      this.contract,
+      entrypoint,
+      txFee
+    );
+    console.log("Burn NFT Tx", tx);
+    this.loading.status = false;
+    this.loading.msg = "";
+    this.isBurning = false;
+
+    // Update Logs
+    if (tx.logs) {
+      if (tx.logs.length) {
+        this.logs.unshift({
+          transfer: tx.logs,
+          timestamp: new Date().getTime(),
+        });
+        console.log("Logs Updated", this.logs);
+      }
+    }
+    // Refresh NFT collections and balances
+    await this.loadNfts();
+    if (this.accounts.length) {
+      await this.getBalances();
+    }
+  } catch (e) {
+    console.warn("Error executing burn NFT", e);
+    this.loading.status = false;
+    this.loading.msg = "";
+  }
+}
