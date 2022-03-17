@@ -214,4 +214,78 @@ export async function loadNfts() {
   }
 }
 
+export async function mintNft() {
+  // SigningCosmWasmClient.execute: async (senderAddress, contractAddress, msg, fee, memo = "", funds)
+      if (!this.accounts) {
+        console.warn("Error getting user", this.accounts);
+        return;
+      } else if (!this.accounts.length) {
+        console.warn("Error getting user", this.accounts);
+        return;
+      }
+
+      // Refresh NFT market to get last minted ID
+      // (Tx. might still fail if multiple users try to mint in the same block)
+      this.loadNfts();
+      let token_id_to_mint = this.nfts.market.tokens.length > 0 ? Number(this.nfts.market.tokens[this.nfts.market.tokens.length - 1].id) + 1 : Number(1);
+
+      // Prepare Tx
+      let entrypoint = {
+        mint_for: {
+          token_id: String(token_id_to_mint),
+          recipient: this.accounts[0].address,
+          token_uri: this.metadata.uri,
+          extension: null, // XXX: null prop?
+        },
+      };
+
+      console.log("Entrypoint", entrypoint);
+
+      this.loading = {
+        status: true,
+        msg: "Minting NFT...",
+      };
+      let txFee = calculateFee(300000, this.gas.price); // XXX TODO: Fix gas estimation (https://github.com/cosmos/cosmjs/issues/828)
+      console.log("Tx args", {
+        senderAddress: this.accounts[0].address,
+        contractAddress: this.contract,
+        msg: entrypoint,
+        fee: txFee,
+      });
+      try {
+        // Send Tx
+        let tx = await this.wasmClient.execute(
+          this.accounts[0].address,
+          this.contract,
+          entrypoint,
+          txFee
+        );
+        this.loading.status = false;
+        this.loading.msg = "";
+        console.log("Mint Tx", tx);
+
+        // Reset minting form
+        this.resetMetadataForm();
+
+        // Update Logs
+        if (tx.logs) {
+          if (tx.logs.length) {
+            this.logs.unshift({
+              mint: tx.logs,
+              timestamp: new Date().getTime(),
+            });
+            console.log("Logs Updated", this.logs);
+          }
+        }
+        // Refresh NFT collections (all NFTs and NFTs owned by end user)
+        await this.loadNfts();
+        if (this.accounts.length) {
+          await this.getBalances();
+        }
+      } catch (e) {
+        console.warn("Error executing mint tx", e);
+        this.loading.status = false;
+        this.loading.msg = "";
+      }
+}
 
