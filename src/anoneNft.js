@@ -5,57 +5,45 @@ import ipfsClient from "./ipfs";
 
 export async function connectWallet() {
   console.log("Connecting wallet...");
+  if (!window) {
+    console.warn("Error parsing window object");
+    return;
+  }
+  if (!window.keplr) {
+    alert("you have to install keplr wallet extension first");
+    return;
+  }
   try {
-    if (window) {
-      if (window["keplr"]) {
-        if (window.keplr["experimentalSuggestChain"]) {
-          await window.keplr.experimentalSuggestChain(this.chainMeta);
-          await window.keplr.enable(this.chainMeta.chainId);
-          this.offlineSigner = await window.getOfflineSigner(
-            this.chainMeta.chainId
-          );
-          this.wasmClient = await SigningCosmWasmClient.connectWithSigner(
-            this.rpc,
-            this.offlineSigner
-          );
-          this.accounts = await this.offlineSigner.getAccounts();
+    if (window.keplr["experimentalSuggestChain"]) {
+      await window.keplr.experimentalSuggestChain(this.chainMeta);
+      await window.keplr.enable(this.chainMeta.chainId);
+      this.offlineSigner = await window.getOfflineSigner(
+        this.chainMeta.chainId
+      );
+      this.wasmClient = await SigningCosmWasmClient.connectWithSigner(
+        this.rpc,
+        this.offlineSigner
+      );
+      this.accounts = await this.offlineSigner.getAccounts();
 
-          console.log("Wallet connected", {
-            offlineSigner: this.offlineSigner,
-            wasmClient: this.wasmClient,
-            accounts: this.accounts,
-            chain: this.chainMeta,
-          });
-          // Query ref.
-          this.handlers.query = UploadResult;
-          this.wasmClient.queryClient.wasm.queryContractSmart;
-          // Gas
-          this.gas.price = GasPrice.fromString("0.002uan1");
-          // Debug
-          console.log("dApp Initialized", {
-            user: this.accounts[0].address,
-            client: this.wasmClient,
-            handlers: this.handlers,
-            gas: this.gas,
-          });
-
-          // Anone testnet account balances ('uan1')
-          if (this.accounts.length) {
-            await this.getBalances();
-          }
-
-          // User and market NFTs
-          await this.loadNfts();
-        } else {
-          console.warn(
-            "Error access experimental features, please update Keplr"
-          );
-        }
-      } else {
-        console.warn("Error accessing Keplr");
-      }
-    } else {
-      console.warn("Error parsing window object");
+      console.log("Wallet connected", {
+        offlineSigner: this.offlineSigner,
+        wasmClient: this.wasmClient,
+        accounts: this.accounts,
+        chain: this.chainMeta,
+      });
+      // Query ref.
+      this.handlers.query =
+        this.wasmClient.queryClient.wasm.queryContractSmart;
+      // Gas
+      this.gas.price = GasPrice.fromString("0.002uan1");
+      // Debug
+      console.log("dApp Initialized", {
+        user: this.accounts[0].address,
+        client: this.wasmClient,
+        handlers: this.handlers,
+        gas: this.gas,
+      });
     }
   } catch (e) {
     console.error("Error connecting to wallet", e);
@@ -231,7 +219,7 @@ export async function mintNft() {
   let token_id_to_mint =
     this.nfts.market.tokens.length > 0
       ? Number(this.nfts.market.tokens[this.nfts.market.tokens.length - 1].id) +
-        1
+      1
       : Number(1);
 
   // Prepare Tx
