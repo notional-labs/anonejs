@@ -49,6 +49,7 @@ export async function addWallet(chainMeta) {
         offlineSigner: offlineSigner,
         wasmClient: wasmClient,
         accounts: accounts,
+        handlers: handlers,
       }
       
       return walletResult;
@@ -59,60 +60,52 @@ export async function addWallet(chainMeta) {
   }
 }
 
-export async function getBalance() {
-  if (!this.chainMeta) {
+export async function getBalances(chainMeta, accounts, wasmClient) {
+  if (!chainMeta) {
     return;
-  } else if (!this.chainMeta["chainName"]) {
+  } else if (!chainMeta["chainName"]) {
     return;
-  } else if (!this.chainMeta["currencies"]) {
+  } else if (!chainMeta["currencies"]) {
     return;
-  } else if (!this.chainMeta.currencies.length) {
+  } else if (!chainMeta.currencies.length) {
     return;
   }
-  this.loading = {
-    status: true,
-    msg: "Updating account balances...",
-  };
-  if (this.accounts) {
-    if (this.accounts.length) {
-      for (let i = 0; i < this.accounts.length; i++) {
-        if (this.accounts[i]["address"]) {
+  if (accounts) {
+    if (accounts.length) {
+      for (let i = 0; i < accounts.length; i++) {
+        if (accounts[i]["address"]) {
           try {
-            console.log("address", this.accounts[i].address);
-            let balance = await this.wasmClient.getBalance(
-              this.accounts[i].address,
-              this.chainMeta.currencies[0].coinMinimalDenom
+            console.log("address", accounts[i].address);
+            let balance = await wasmClient.getBalance(
+              accounts[i].address,
+              chainMeta.currencies[0].coinMinimalDenom
             );
-            this.accounts[i].balance = balance;
-            this.loading.status = false;
-            this.loading.msg = "";
-            console.log("Balance updated", this.accounts[i].balance);
+            accounts[i].balance = balance;
+            console.log("Balance updated", accounts[i].balance);
           } catch (e) {
             console.warn("Error reading account address", [
               String(e),
-              this.accounts[i],
+              accounts[i],
             ]);
-            this.loading.status = false;
-            this.loading.msg = "";
             return;
           }
         } else {
           console.warn(
             "Failed to resolve account address at index " + i,
-            this.accounts[i]
+            accounts[i]
           );
         }
       }
     } else {
-      this.loading.status = false;
-      this.loading.msg = "";
       console.warn("Failed to resolve Keplr wallet");
     }
   } else {
-    this.loading.status = false;
-    this.loading.msg = "";
     console.warn("Failed to resolve Keplr wallet");
   }
+  let balanceStateResults = {
+    accounts: accounts
+  }
+  return balanceStateResults;
 }
 
 export async function ipfsUpload() {
