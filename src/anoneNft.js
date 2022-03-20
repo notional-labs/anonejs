@@ -1,50 +1,59 @@
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import { calculateFee, GasPrice } from "@cosmjs/stargate";
-import { AnoneTestnetInfo } from "./chain.info.anonetestnet";
-import ipfsClient from "./ipfs";
 
-export async function connectWallet() {
+export async function addWallet(chainMeta) {
   console.log("Connecting wallet...");
   if (!window) {
     console.warn("Error parsing window object");
     return;
   }
   if (!window.keplr) {
-    alert("you have to install keplr wallet extension first");
+    console.warn("You have to install keplr wallet extension first");
     return;
   }
   try {
     if (window.keplr["experimentalSuggestChain"]) {
-      await window.keplr.experimentalSuggestChain(this.chainMeta);
-      await window.keplr.enable(this.chainMeta.chainId);
-      this.offlineSigner = await window.getOfflineSigner(
-        this.chainMeta.chainId
-      );
-      this.wasmClient = await SigningCosmWasmClient.connectWithSigner(
-        this.rpc,
-        this.offlineSigner
-      );
-      this.accounts = await this.offlineSigner.getAccounts();
+      await window.keplr.experimentalSuggestChain(chainMeta);
+      await window.keplr.enable(chainMeta.chainId);
+      let offlineSigner = await window.getOfflineSigner(chainMeta.chainId);
+      let wasmClient = await SigningCosmWasmClient.connectWithSigner(chainMeta.rpc, offlineSigner);
+      let accounts = await offlineSigner.getAccounts();
 
       console.log("Wallet connected", {
-        offlineSigner: this.offlineSigner,
-        wasmClient: this.wasmClient,
-        accounts: this.accounts,
-        chain: this.chainMeta,
+        offlineSigner: offlineSigner,
+        wasmClient: wasmClient,
+        accounts: accounts,
+        chain: chainMeta,
       });
       // Query ref.
-      this.handlers.query =
-        this.wasmClient.queryClient.wasm.queryContractSmart;
+      let handlers = {
+        query: null,
+      }
+
+      let gas = {
+        price: null
+      }
+
+      handlers.query = wasmClient.queryClient.wasm.queryContractSmart;
       // Gas
-      this.gas.price = GasPrice.fromString("0.002uan1");
+      gas.price = GasPrice.fromString("0.002uan1");
       // Debug
       console.log("dApp Initialized", {
-        user: this.accounts[0].address,
-        client: this.wasmClient,
-        handlers: this.handlers,
-        gas: this.gas,
+        user: accounts[0].address,
+        client: wasmClient, 
+        handlers: handlers,
+        gas: gas,
       });
+
+      let walletResult = {
+        offlineSigner: offlineSigner,
+        wasmClient: wasmClient,
+        accounts: accounts,
+      }
+      
+      return walletResult;
     }
+    
   } catch (e) {
     console.error("Error connecting to wallet", e);
   }
