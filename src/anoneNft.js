@@ -108,6 +108,70 @@ export async function getBalances(chainMeta, accounts, wasmClient) {
   return balanceStateResults;
 }
 
+export async function getNfts(handlers, contractAddress) {
+  let entrypoint = {
+    all_tokens: {},
+  };
+
+  let query = await handlers.query(contractAddress, entrypoint);
+  console.log("Market NFTs", query);
+
+  return query;
+}
+
+export async function getTokenMetadata(handlers, tokenId = false, contractAddress) {
+  if (!tokenId || typeof tokenId !== "string") {
+    console.warn(
+      "Invalid token ID. Token ID must be a string, but got " + typeof tokenId
+    );
+    return;
+  }
+
+  let entrypoint = {
+    nft_info: {
+      token_id: tokenId,
+    },
+  };
+
+  let query = await handlers.query(contractAddress, entrypoint);
+
+  // Resolve IPFS metadata
+  const httpClient = axios.create();
+  let ipfsEndpoint = query["token_uri"];
+  let httpEndpoint = ipfsEndpoint.replace("ipfs://", ipfsClient.IPFS.ipfsGateway);
+  let result = await httpClient.get(httpEndpoint);
+
+  if (result.data) {
+    if (result.data.image) {
+      result.data.image = result.data.image.replace(
+        "ipfs://",
+        ipfsClient.IPFS.ipfsGateway
+      );
+    }
+  }
+
+  entrypoint = {
+    owner_of: {
+      token_id: tokenId,
+    },
+  };
+
+  let ownerQuery = await handlers.query(contractAddress, entrypoint);
+  if (ownerQuery["owner"]) {
+    result.data.owner = ownerQuery.owner;
+  }
+  if (ownerQuery["approvals"]) {
+    result.data.approvals = ownerQuery.approvals;
+  }
+
+  console.log("NFT contract succesfully queried for token ID " + tokenId, [
+    query,
+    ownerQuery,
+  ]);
+
+  return result.data ? result.data : query;
+}
+
 export async function ipfsUpload() {
   if (!this.files.length) {
     console.warn("Nothing to upload to IPFS");
@@ -180,29 +244,6 @@ export async function ipfsUpload() {
     this.loading.msg = "";
     return;
   };
-}
-
-export async function loadNfts() {
-  // XXX TODO: Fix request tokens of address
-  // Load NFTs
-  try {
-    // User NFTs
-    // this.nfts.user = await this.getNftsOfOwner();
-    // console.log('My NFTs', this.nfts.user);
-    // All NFTs (of contract)
-    this.nfts.market = await this.getNfts();
-    console.log("All NFTs", this.nfts.market);
-    // console.log('NFTs at contract '+ this.contract +' have been loaded', this.nfts);
-
-    // Iterate ID's and get token data
-    await this.loadNftData();
-  } catch (e) {
-    console.error("Error loading NFTs", {
-      nfts: this.nfts,
-      user: this.accounts,
-      error: e,
-    });
-  }
 }
 
 export async function mintNft() {
