@@ -1,8 +1,10 @@
 import { calculateFee, GasPrice } from "@cosmjs/stargate";
+import getWasmClient from './getKeplr';
 
 export const createCollection = async (Config) => {
   const account = JSON.parse(localStorage.getItem("account")).account.address;
-  const wasmClient = JSON.parse(localStorage.getItem("wasmClient"));
+  const wasmClient = await getWasmClient()
+  console.log(wasmClient)
   const gasPrice = GasPrice.fromString('0.002uan1');
   const royaltyInfo = {
     payment_address: Config.royaltyPaymentAddress,
@@ -21,14 +23,14 @@ export const createCollection = async (Config) => {
         creator: account,
         description: Config.description,
         image: Config.image,
-        external_link: Config.external_link,
+        external_link: Config.externalLink,
         royalty_info: royaltyInfo,
       },
     },
     per_address_limit: Config.perAddressLimit,
   };
 
-  const txFee = calculateFee(300000, gasPrice);
+  const txFee = calculateFee(3000000, gasPrice);
 
   const result = await wasmClient.instantiate(
     account,
