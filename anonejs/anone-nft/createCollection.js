@@ -1,5 +1,5 @@
 import { calculateFee, GasPrice } from "@cosmjs/stargate";
-import getWasmClient from './getKeplr';
+import getWasmClient from '../getKeplr';
 
 export const createCollection = async (Config) => {
   const account = JSON.parse(localStorage.getItem("account")).account.address;
