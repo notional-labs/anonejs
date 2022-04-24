@@ -1,12 +1,12 @@
 import { getWasmClient } from "../utils/getKeplr";
 
-// 1. Function for query information about account
+// 1. Functions for query information about account
 export const queryAccountInfo = async (Config) => {
     const wasmClient = await getWasmClient()
     const account = JSON.parse(localStorage.getItem("account")).account.address
     const balance = await wasmClient.getBalance(account, 'uan1')
     console.log('account balance:', balance)
-    return balance;
+    return balance; // return account's AN1 balance
 }
 
 // 2. Functions for query information about Nft and Collection
@@ -18,7 +18,20 @@ export const queryNftInfoById = async (Config) => {
         }
     })
 
-    return nftInfo; // return all info about nft with this token_id
+    const result = {
+        owner: nftInfo.access.owner,
+        approvals: nftInfo.access.approvals,
+        token_uri: nftInfo.info.token_uri,
+        extension: nftInfo.info.extension
+    }
+    return result; // return all info about nft with this token_id
+}
+
+export const queryNumberOfNfts = async (cw721ContractAddr) => {
+    const wasmClient = await getWasmClient()
+    const numTokens = await wasmClient.queryContractSmart(cw721ContractAddr, { num_tokens: {} })
+
+    return numTokens.count; // return the number of nfts on this collection
 }
 
 // 3. Functions for query information on Marketplace
