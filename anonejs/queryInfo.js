@@ -25,6 +25,7 @@ export const queryNftInfoById = async (Config) => {
     approvals: nftInfo.access.approvals,
     token_uri: nftInfo.info.token_uri,
     extension: nftInfo.info.extension,
+    contract_addr: Config.cw721ContractAddr
   };
   return result; // return all info about nft with this token_id
 };
