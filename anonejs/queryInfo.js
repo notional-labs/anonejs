@@ -62,6 +62,15 @@ export const queryNumberOfNfts = async (cw721ContractAddr) => {
   return numTokens.count; // return the number of nfts on this collection
 };
 
+export const queryNumberOfModels = async (cw721ContractAddr) => {
+  const wasmClient = await getWasmClient();
+  const numModels = await wasmClient.queryContractSmart(cw721ContractAddr, {
+    num_models: {},
+  });
+
+  return numModels.count; // return the number of models on this collection
+};
+
 export const queryCollectionInfo = async (cw721ContractAddr) => {
   const wasmClient = await getWasmClient();
 
