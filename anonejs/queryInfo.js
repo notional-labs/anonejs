@@ -23,11 +23,34 @@ export const queryNftInfoById = async (Config) => {
   const result = {
     owner: nftInfo.access.owner,
     approvals: nftInfo.access.approvals,
+    model_id: nftInfo.info.model_id,
     token_uri: nftInfo.info.token_uri,
+    size: nftInfo.info.size,
     extension: nftInfo.info.extension,
     contract_addr: Config.cw721ContractAddr
   };
   return result; // return all info about nft with this token_id
+};
+
+export const queryModelInfoById = async (Config) => {
+  const wasmClient = await getWasmClient();
+  const modelInfo = await wasmClient.queryContractSmart(
+    Config.cw721ContractAddr,
+    {
+      model_info: {
+        model_id: Config.modelId,
+      },
+    }
+  );
+
+  const result = {
+    owner: modelInfo.owner,
+    model_uri: modelInfo.model_uri,
+    extension: modelInfo.extension,
+    contract_addr: Config.cw721ContractAddr
+  };
+
+  return result; // return all info about shoe model with this model_id
 };
 
 export const queryNumberOfNfts = async (cw721ContractAddr) => {
