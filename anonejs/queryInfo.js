@@ -63,6 +63,14 @@ export const queryModelInfoById = async (Config) => {
   return result; // return all info about shoe model with this model_id
 };
 
+export const queryAllDataOfAllModels = async (cw721ContractAddr) => {
+  const wasmClient = await getWasmClient();
+  const modelInfo = await wasmClient.queryContractSmart(cw721ContractAddr, {
+    all_models_info: {},
+  });
+  return modelInfo; // return all data of all models
+};
+
 export const queryNumberOfNfts = async (cw721ContractAddr) => {
   const wasmClient = await getWasmClient();
   const numTokens = await wasmClient.queryContractSmart(cw721ContractAddr, {
