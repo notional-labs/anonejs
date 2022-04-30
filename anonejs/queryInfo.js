@@ -21,15 +21,24 @@ export const queryNftInfoById = async (Config) => {
   );
 
   const result = {
+    token_id: Config.tokenId,
     owner: nftInfo.access.owner,
     approvals: nftInfo.access.approvals,
     model_id: nftInfo.info.model_id,
     token_uri: nftInfo.info.token_uri,
     size: nftInfo.info.size,
     extension: nftInfo.info.extension,
-    contract_addr: Config.cw721ContractAddr
+    contract_addr: Config.cw721ContractAddr,
   };
   return result; // return all info about nft with this token_id
+};
+
+export const queryAllDataOfAllNfts = async (cw721ContractAddr) => {
+  const wasmClient = await getWasmClient();
+  const nftInfo = await wasmClient.queryContractSmart(cw721ContractAddr, {
+    all_tokens_info: {},
+  });
+  return nftInfo; // return all data of all nfts
 };
 
 export const queryModelInfoById = async (Config) => {
@@ -44,10 +53,11 @@ export const queryModelInfoById = async (Config) => {
   );
 
   const result = {
+    model_id: Config.modelId,
     owner: modelInfo.owner,
     model_uri: modelInfo.model_uri,
     extension: modelInfo.extension,
-    contract_addr: Config.cw721ContractAddr
+    contract_addr: Config.cw721ContractAddr,
   };
 
   return result; // return all info about shoe model with this model_id
@@ -86,14 +96,14 @@ export const queryCollectionInfo = async (cw721ContractAddr) => {
   );
 
   const result = {
-      name: contractInfo.name,
-      symbol: contractInfo.symbol,
-      creator: collectionInfo.creator,
-      image: collectionInfo.image,
-      description: collectionInfo.description,
-      externalLink: collectionInfo.external_link,
-      royaltyInfo: collectionInfo.royalty_info,
-  }
+    name: contractInfo.name,
+    symbol: contractInfo.symbol,
+    creator: collectionInfo.creator,
+    image: collectionInfo.image,
+    description: collectionInfo.description,
+    externalLink: collectionInfo.external_link,
+    royaltyInfo: collectionInfo.royalty_info,
+  };
   return result; // return all infomation about this collection
 };
 
