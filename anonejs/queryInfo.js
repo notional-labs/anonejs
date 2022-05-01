@@ -146,6 +146,21 @@ export const queryOfferingListByPriceRange = async (Config) => {
   return offeringList.offerings; // return an array contains all of offerings on markerplace with price range filter
 };
 
+export const queryOfferingListOfCollection = async (Config) => {
+  const wasmClient = await getWasmClient();
+  const offeringList = await wasmClient.queryContractSmart(
+    Config.nftMarketplaceContractAddr,
+    {
+      get_offerings_of_collection: {
+        sort_listing: Config.sortListing,
+        contract_addr: Config.collectionAddr
+      },
+    }
+  );
+
+  return offeringList.offerings; // return an array contains all of offerings have the same collection addr on markerplace 
+};
+
 // 4. Functions for query all collection contract have the same code_id
 export const queryAllContracts = async (code_id) => {
   const wasmClient = await getWasmClient();
