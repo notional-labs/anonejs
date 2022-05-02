@@ -1,8 +1,9 @@
 import { calculateFee, GasPrice } from "@cosmjs/stargate";
+import { getWasmClient } from "../utils/getKeplr";
 
 export const mintCallFromUser = async (Config) => {
   const account = JSON.parse(localStorage.getItem("account")).account.address;
-  const wasmClient = JSON.parse(localStorage.getItem("wasmClient"));
+  const wasmClient = await getWasmClient();
   const gasPrice = GasPrice.fromString("0.002uan1");
 
   let entrypoint = {
@@ -13,7 +14,7 @@ export const mintCallFromUser = async (Config) => {
 
   const result = await wasmClient.execute(
     account,
-    Config.minter_contract,
+    Config.minterContract,
     entrypoint,
     txFee,
     "mint sender"
@@ -26,7 +27,7 @@ export const mintCallFromUser = async (Config) => {
 
 export const mintToRecipient = async (Config) => {
   const account = JSON.parse(localStorage.getItem("account")).account.address;
-  const wasmClient = JSON.parse(localStorage.getItem("wasmClient"));
+  const wasmClient = await getWasmClient();
   const gasPrice = GasPrice.fromString("0.002uan1");
 
   let entrypoint = {
@@ -37,7 +38,7 @@ export const mintToRecipient = async (Config) => {
 
   const result = await wasmClient.execute(
     account,
-    Config.minter_contract,
+    Config.minterContract,
     entrypoint,
     txFee,
     "mint to"
@@ -53,7 +54,7 @@ export const mintToRecipient = async (Config) => {
 
 export const mintForRecipient = async (Config) => {
   const account = JSON.parse(localStorage.getItem("account")).account.address;
-  const wasmClient = JSON.parse(localStorage.getItem("wasmClient"));
+  const wasmClient = await getWasmClient();
   const gasPrice = GasPrice.fromString("0.002uan1");
 
   let entrypoint = {
@@ -64,7 +65,7 @@ export const mintForRecipient = async (Config) => {
 
   const result = await wasmClient.execute(
     account,
-    Config.minter_contract,
+    Config.minterContract,
     entrypoint,
     txFee,
     "mint for"
