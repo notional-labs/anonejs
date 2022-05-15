@@ -115,7 +115,17 @@ export const queryCollectionInfo = async (cw721ContractAddr) => {
   return result; // return all infomation about this collection
 };
 
-// 3. Functions for query information on Marketplace
+// 3. Functions for query info from anone minter
+export const queryConfigOfLaunchpad = async (launchpadContract) => {
+  const wasmClient = await getWasmClient();
+  const config = await wasmClient.queryContractSmart(launchpadContract, {
+    config: {},
+  });
+
+  return config; // return all info in config of a minter contract
+};
+
+// 4. Functions for query information on Marketplace
 export const queryOfferingList = async (Config) => {
   const wasmClient = await getWasmClient();
   const offeringList = await wasmClient.queryContractSmart(
@@ -176,7 +186,7 @@ export const queryOfferingListOfSeller = async (Config) => {
   return offeringList.offerings; // return an array contains all of offerings have the same seller on markerplace 
 };
 
-// 4. Functions for query all collection contract have the same code_id
+// 5. Functions for query all collection contract have the same code_id
 export const queryAllContracts = async (code_id) => {
   const wasmClient = await getWasmClient();
   const contracts = await wasmClient.getContracts(code_id);
