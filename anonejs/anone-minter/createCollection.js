@@ -34,7 +34,7 @@ export const createCollection = async (Config) => {
 
   const result = await wasmClient.instantiate(
     account,
-    50, // minter_code_id (stored)
+    80, // minter_code_id (stored)
     instantiateMsg,
     Config.name,
     txFee

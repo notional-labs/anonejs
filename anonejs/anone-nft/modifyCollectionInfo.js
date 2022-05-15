@@ -1,6 +1,7 @@
 import { calculateFee, GasPrice } from "@cosmjs/stargate";
 import { getWasmClient } from "../utils/getKeplr";
 
+// This function is used for interacting directly with cw721ContractAddr
 export const modifyCollectionInfo = async (Config) => {
   const account = JSON.parse(localStorage.getItem("account")).account.address;
   const wasmClient = await getWasmClient();
