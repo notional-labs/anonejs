@@ -125,6 +125,15 @@ export const queryConfigOfLaunchpad = async (launchpadContract) => {
   return config; // return all info in config of a minter contract
 };
 
+export const queryCollectionAddressOfLaunchpad = async (launchpadContract) => {
+  const wasmClient = await getWasmClient();
+  const config = await wasmClient.queryContractSmart(launchpadContract, {
+    config: {},
+  });
+
+  return config.an721_address; // return collection address of a minter contract
+};
+
 // 4. Functions for query information on Marketplace
 export const queryOfferingList = async (Config) => {
   const wasmClient = await getWasmClient();
