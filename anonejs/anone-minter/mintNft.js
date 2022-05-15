@@ -7,7 +7,10 @@ export const mintCallFromUser = async (Config) => {
   const gasPrice = GasPrice.fromString("0.002uan1");
 
   let entrypoint = {
-    mint: {},
+    mint: {
+      model_id: Config.modelId,
+      size: Config.size,
+    },
   };
 
   const txFee = calculateFee(300000, gasPrice);
@@ -21,10 +24,11 @@ export const mintCallFromUser = async (Config) => {
   );
 
   console.log("Mint call from user Tx", result);
-  const wasmEvent = result.logs[0].events.find((e) => e.type === 'wasm');
+  const wasmEvent = result.logs[0].events.find((e) => e.type === "wasm");
   return wasmEvent;
 };
 
+/*
 export const mintToRecipient = async (Config) => {
   const account = JSON.parse(localStorage.getItem("account")).account.address;
   const wasmClient = await getWasmClient();
@@ -79,3 +83,5 @@ export const mintForRecipient = async (Config) => {
   const wasmEvent = result.logs[0].events.find((e) => e.type === 'wasm');
   return wasmEvent;
 };
+
+**/
